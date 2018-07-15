@@ -66,7 +66,7 @@ def create_cruise_adjust_msg(spdCtrlLvr_stat, idx):
   return [msg_id, 0, msg.raw, 0]
   
 
-def _cuise_stalk_checksum(spdCtrlLvr_stat, idx): 
+def _cruise_stalk_checksum(spdCtrlLvr_stat, idx): 
   # map of observed crcs, modeled as a nested dict of
   # spdCtrlLvr_stat:message_count:observed_crc
   # TODO: Replace this hard-coded map with an actual checksum
@@ -151,4 +151,3 @@ def _cuise_stalk_checksum(spdCtrlLvr_stat, idx):
     if idx in position_crcs:
       return position_crcs[idx]
   return 0
-  
