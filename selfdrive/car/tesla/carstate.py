@@ -246,8 +246,6 @@ class CarState(object):
       self.v_cruise_car = (cp.vl["DI_state"]['DI_cruiseSet'])*CV.MPH_TO_KPH # Reported in MPH, expected in KPH??
     else:
       self.v_cruise_car = cp.vl["DI_state"]['DI_cruiseSet']
-    # Hard coded test of 65 MPH
-    self.v_cruise_pcm = 65 * 1.609
     
     self.pcm_acc_status = cp.vl["DI_state"]['DI_cruiseState']
     self.hud_lead = 0 #JCT
