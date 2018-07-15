@@ -141,7 +141,6 @@ class CarController(object):
     
     # Angle
     apply_steer = int(clip((-actuators.steerAngle * 10) + STEER_MAX, STEER_MAX - (USER_STEER_MAX*2), STEER_MAX + (USER_STEER_MAX*2))) # steer torque is converted back to CAN reference (positive when steering right)
-
     # Send CAN commands.
     can_sends = []
     send_step = 5
@@ -151,5 +150,10 @@ class CarController(object):
       can_sends.append(teslacan.create_steering_control(enable_steer_control, apply_steer, idx))
       if (not humanControl):
         can_sends.append(teslacan.create_epb_enable_signal(idx))
-
+      apply_accel = actuators.gas - actuators.brake < 0
+      if (apply_accel < 0):
+        can_sends.append(teslacan.create_cruise_adjust_msg(32, idx))
+      elif (apply_accel > 0):
+        can_sends.append(teslacan.create_cruise_adjust_msg(16, idx))        
+        
       sendcan.send(can_list_to_can_capnp(can_sends, msgtype='sendcan').to_bytes())
