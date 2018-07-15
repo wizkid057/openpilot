@@ -226,7 +226,6 @@ class CarState(object):
 
     self.main_on = 1 #cp.vl["SCM_BUTTONS"]['MAIN_ON']
 
-    self.cruise_speed_offset = calc_cruise_offset(cp.vl["DI_state"]['DI_cruiseSet'], self.v_ego)
     self.gear_shifter = parse_gear_shifter(can_gear_shifter, self.CP.carFingerprint)
 
     self.pedal_gas = 0 #cp.vl["DI_torque1"]['DI_pedalPos']
@@ -244,10 +243,15 @@ class CarState(object):
     self.standstill = cp.vl["DI_torque2"]['DI_vehicleSpeed'] == 0
     if cp.vl["DI_state"]['DI_speedUnits'] == 0:
       self.v_cruise_pcm = (cp.vl["DI_state"]['DI_cruiseSet'])*1.609 # Reported in MPH, expected in KPH??
+      self.v_cruise_car = (cp.vl["DI_state"]['DI_cruiseSet'])*1.609 # Reported in MPH, expected in KPH??
     else:
       self.v_cruise_pcm = cp.vl["DI_state"]['DI_cruiseSet']
+      self.v_cruise_car = cp.vl["DI_state"]['DI_cruiseSet']
+    # Hard coded test of 78 MPH
+    self.v_cruise_pcm = 78
     self.pcm_acc_status = cp.vl["DI_state"]['DI_cruiseState']
     self.hud_lead = 0 #JCT
+    self.cruise_speed_offset = calc_cruise_offset(self.v_cruise_pcm, self.v_ego)
 
 
 # carstate standalone tester
