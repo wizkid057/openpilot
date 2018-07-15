@@ -145,6 +145,7 @@ class CarState(object):
     self.frame_humanSteered = 0    # Last frame human steered
 
     self.v_cruise_pcm = 20 * CV.MPH_TO_KPH
+    self.v_cruise_car = 20 * CV.MPH_TO_KPH
     # vEgo kalman filter
     dt = 0.01
     # Q = np.matrix([[10.0, 0.0], [0.0, 100.0]])
