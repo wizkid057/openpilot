@@ -247,8 +247,8 @@ class CarState(object):
     else:
       self.v_cruise_pcm = cp.vl["DI_state"]['DI_cruiseSet']
       self.v_cruise_car = cp.vl["DI_state"]['DI_cruiseSet']
-    # Hard coded test of 78 MPH
-    self.v_cruise_pcm = 78
+    # Hard coded test of 55 MPH
+    self.v_cruise_pcm = 55
     self.pcm_acc_status = cp.vl["DI_state"]['DI_cruiseState']
     self.hud_lead = 0 #JCT
     self.cruise_speed_offset = calc_cruise_offset(self.v_cruise_pcm, self.v_ego)
