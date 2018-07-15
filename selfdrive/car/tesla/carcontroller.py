@@ -150,14 +150,16 @@ class CarController(object):
       can_sends.append(teslacan.create_steering_control(enable_steer_control, apply_steer, idx))
       if (not humanControl):
         can_sends.append(teslacan.create_epb_enable_signal(idx))
-      apply_accel = actuators.gas - actuators.brake
-      print "Apply Accel, Gas, Brake, v_cruise_pcm, v_cruise_car = " + str(apply_accel) + ", " + str(actuators.gas) + ", " + str(actuators.brake) + ", " + str(CS.v_cruise_pcm) + ", " + str(CS.v_cruise_car)
       if (enable_steer_control):
-        if (apply_accel < -0.4):
+        if (brake > 0.7):
           can_sends.append(teslacan.create_cruise_adjust_msg(8, idx))
         # Model isn't sending gas currently..
         # elif (apply_accel > 0.4):
         elif (CS.v_cruise_car < CS.v_cruise_pcm):
-          can_sends.append(teslacan.create_cruise_adjust_msg(4, idx))        
+          if (frame % 50) == 0:
+            if (CS.v_cruise_pcm - CS.v_cruisecar > 8):
+              can_sends.append(teslacan.create_cruise_adjust_msg(4, idx))
+            else:
+              can_sends.append(teslacan.create_cruise_adjust_msg(16, idx))         
 
       sendcan.send(can_list_to_can_capnp(can_sends, msgtype='sendcan').to_bytes())

@@ -144,6 +144,7 @@ class CarState(object):
     self.stopped = 0
     self.frame_humanSteered = 0    # Last frame human steered
 
+    self.v_cruise_pcm = 20 * CV.MPH_TO_KPH
     # vEgo kalman filter
     dt = 0.01
     # Q = np.matrix([[10.0, 0.0], [0.0, 100.0]])
@@ -191,7 +192,7 @@ class CarState(object):
     self.v_wheel_rr = 0 #JCT
     self.v_wheel = 0 #JCT
     self.v_weight = 0 #JCT
-    speed = (cp.vl["DI_torque2"]['DI_vehicleSpeed'])*1.609/3.6 #JCT MPH_TO_MS. Tesla is in MPH, v_ego is expected in M/S
+    speed = (cp.vl["DI_torque2"]['DI_vehicleSpeed'])*CV.MPH_TO_KPH/3.6 #JCT MPH_TO_MS. Tesla is in MPH, v_ego is expected in M/S
     speed = speed * 1.01 # To match car's displayed speed
     self.v_ego_x = np.matrix([[speed], [0.0]])
     self.v_ego_raw = speed
@@ -242,13 +243,12 @@ class CarState(object):
     self.user_brake = cp.vl["DI_torque2"]['DI_brakePedal']
     self.standstill = cp.vl["DI_torque2"]['DI_vehicleSpeed'] == 0
     if cp.vl["DI_state"]['DI_speedUnits'] == 0:
-      self.v_cruise_pcm = (cp.vl["DI_state"]['DI_cruiseSet'])*1.609 # Reported in MPH, expected in KPH??
-      self.v_cruise_car = (cp.vl["DI_state"]['DI_cruiseSet'])*1.609 # Reported in MPH, expected in KPH??
+      self.v_cruise_car = (cp.vl["DI_state"]['DI_cruiseSet'])*CV.MPH_TO_KPH # Reported in MPH, expected in KPH??
     else:
-      self.v_cruise_pcm = cp.vl["DI_state"]['DI_cruiseSet']
       self.v_cruise_car = cp.vl["DI_state"]['DI_cruiseSet']
-    # Hard coded test of 55 MPH
-    self.v_cruise_pcm = 55
+    # Hard coded test of 65 MPH
+    self.v_cruise_pcm = 65 * 1.609
+    
     self.pcm_acc_status = cp.vl["DI_state"]['DI_cruiseState']
     self.hud_lead = 0 #JCT
     self.cruise_speed_offset = calc_cruise_offset(self.v_cruise_pcm, self.v_ego)
