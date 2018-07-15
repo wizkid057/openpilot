@@ -152,9 +152,9 @@ class CarController(object):
         can_sends.append(teslacan.create_epb_enable_signal(idx))
       apply_accel = actuators.gas - actuators.brake
       print "Apply Accel, Gas, Brake = " + str(apply_accel) + ", " + str(actuators.gas) + ", " + str(actuators.brake)
-      if (apply_accel < 0):
+      if (apply_accel < -0.4):
         can_sends.append(teslacan.create_cruise_adjust_msg(8, idx))
-      elif (apply_accel > 0):
+      elif (apply_accel > 0.4):
         can_sends.append(teslacan.create_cruise_adjust_msg(4, idx))        
         
       sendcan.send(can_list_to_can_capnp(can_sends, msgtype='sendcan').to_bytes())
