@@ -158,7 +158,7 @@ class CarController(object):
         # elif (apply_accel > 0.4):
         elif (CS.v_cruise_car < CS.v_cruise_pcm):
           if (frame % 50) == 0:
-            if (CS.v_cruise_pcm - CS.v_cruise_car > 8):
+            if (CS.v_ego > (18*CV.MPHTOKPM) and CS.v_cruise_pcm - CS.v_cruise_car > 8):
               can_sends.append(teslacan.create_cruise_adjust_msg(4, idx))
             else:
               can_sends.append(teslacan.create_cruise_adjust_msg(16, idx))         
