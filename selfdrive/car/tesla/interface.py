@@ -237,6 +237,7 @@ class CarInterface(object):
     ret.leftBlinker = bool(self.CS.left_blinker_on)
     ret.rightBlinker = bool(self.CS.right_blinker_on)
 
+
     ret.doorOpen = not self.CS.door_all_closed
     ret.seatbeltUnlatched = not self.CS.seatbelt
 
@@ -322,7 +323,11 @@ class CarInterface(object):
 
     # The Frame # is available here.. so let's move when the user counter to here..
 
-        # If we were previously disengaged via CS.steer_override>0 then we want [x] in a row where our planned steering is within 3 degrees of where we are steering
+    # Basic highway lane change logic - Regard turn signal as human in control
+    if (self.CS.right_blinker_on or self.CS.left_blinker_on):
+      self.CS.frame_humanSteered = self.frame
+
+    # If we were previously disengaged via CS.steer_override>0 then we want [x] in a row where our planned steering is within 3 degrees of where we are steering
     if (self.CS.steer_override>0): 
       self.CS.frame_humanSteered = self.frame
       events.append(create_event('steerTempUnavailableMute', [ET.NO_ENTRY, ET.WARNING]))
