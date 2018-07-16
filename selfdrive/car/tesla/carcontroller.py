@@ -128,7 +128,8 @@ class CarController(object):
     #                     59 degree at 100 km/h
     #                     42 degree at 110 km/h
     #                     25 degree at 120 km/h
-    USER_STEER_MAX = (-62.0 * CS.v_ego) + 2314.6
+    #USER_STEER_MAX = (-62.0 * CS.v_ego) + 2314.6
+    USER_STEER_MAX  = 1.485 * CS.v_ego * CS.v_ego - 154.51 * CS.v_ego + 4000
 
     # Prevent steering while stopped
     MIN_STEERING_VEHICLE_VELOCITY = 0.05 # m/s
@@ -151,7 +152,7 @@ class CarController(object):
       can_sends.append(teslacan.create_steering_control(enable_steer_control, apply_steer, idx))
       if (not humanControl):
         can_sends.append(teslacan.create_epb_enable_signal(idx))
-      if (enable_steer_control):
+      if (enable_steer_control   and CS.pcm_acc_status == 2):
         if (idx == 0):
           print "Brake,Gas,v_cruise_car,v_cruise_pcm" + str(brake) + ", " + str(actuators.gas) + ", " + str(CS.v_cruise_car) + ", " + str(CS.v_cruise_pcm)
         if (brake > 0.7):
