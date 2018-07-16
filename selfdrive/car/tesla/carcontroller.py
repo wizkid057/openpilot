@@ -159,7 +159,7 @@ class CarController(object):
           print "Send slow down"
         # Model isn't sending gas currently..
         # elif (apply_accel > 0.4):
-        elif (CS.v_cruise_car < CS.v_cruise_pcm):
+        elif (CS.v_cruise_pcm - CS.v_cruise_car > 1):
           if (frame % 50) == 0:
             if (CS.v_ego > (18*CV.MPH_TO_KPH) and CS.v_cruise_pcm - CS.v_cruise_car > 10):
               can_sends.append(teslacan.create_cruise_adjust_msg(4, idx))
