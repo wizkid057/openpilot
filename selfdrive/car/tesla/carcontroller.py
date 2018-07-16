@@ -155,17 +155,17 @@ class CarController(object):
         if (idx == 0):
           print "Brake,Gas,v_cruise_car,v_cruise_pcm" + str(brake) + ", " + str(actuators.gas) + ", " + str(CS.v_cruise_car) + ", " + str(CS.v_cruise_pcm)
         if (brake > 0.7):
-          can_sends.append(teslacan.create_cruise_adjust_msg(8, idx))
+          can_sends.append(teslacan.create_cruise_adjust_msg(8, idx, CS.last_cruise_message))
           print "Send slow down"
         # Model isn't sending gas currently..
         # elif (apply_accel > 0.4):
         elif (CS.v_cruise_pcm - CS.v_cruise_car > 1):
           if (frame % 50) == 0:
             if (CS.v_ego > (18*CV.MPH_TO_KPH) and CS.v_cruise_pcm - CS.v_cruise_car > 10):
-              can_sends.append(teslacan.create_cruise_adjust_msg(4, idx))
+              can_sends.append(teslacan.create_cruise_adjust_msg(4, idx, CS.last_cruise_message))
               print "Send up 5?"
             else:
-              can_sends.append(teslacan.create_cruise_adjust_msg(16, idx))         
+              can_sends.append(teslacan.create_cruise_adjust_msg(16, idx, CS.last_cruise_message))         
               print "Send up 1?"
 
       sendcan.send(can_list_to_can_capnp(can_sends, msgtype='sendcan').to_bytes())

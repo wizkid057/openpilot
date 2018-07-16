@@ -35,7 +35,7 @@ def create_epb_enable_signal(idx):
   struct.pack_into('B', msg, msg_len-1, add_tesla_checksum(msg_id,msg))
   return [msg_id, 0, msg.raw, 2]
   
-def create_cruise_adjust_msg(spdCtrlLvr_stat, idx):
+def create_cruise_adjust_msg(spdCtrlLvr_stat, idx, last_cruise_message):
   """Creates a CAN message from the cruise control stalk.
   
   Simluates pressing the cruise control stalk (STW_ACTN_RQ.SpdCtrlLvr_Stat
@@ -64,7 +64,7 @@ def create_cruise_adjust_msg(spdCtrlLvr_stat, idx):
   struct.pack_into('B', msg, msg_len-1, checksum)
   # [ message id, ????, message, CAN bus number]
   return [msg_id, 0, msg.raw, 0]
-  
+
 def _cruise_stalk_checksum(spdCtrlLvr_stat, idx): 
   # map of observed crcs, modeled as a nested dict of
   # spdCtrlLvr_stat:message_count:observed_crc

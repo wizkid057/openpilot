@@ -140,6 +140,8 @@ class CarState(object):
     self.left_blinker_on = 0
     self.right_blinker_on = 0
     self.steer_warning = 0
+    # TODO - Replace with a default value:
+    self.last_cruise_message = ""
     
     self.stopped = 0
     self.frame_humanSteered = 0    # Last frame human steered
@@ -213,7 +215,7 @@ class CarState(object):
 
     self.cruise_setting = cp.vl["STW_ACTN_RQ"]['SpdCtrlLvr_Stat']
     self.cruise_buttons = cp.vl["STW_ACTN_RQ"]['SpdCtrlLvr_Stat']
-
+    self.last_cruise_message = cp.vl["STW_ACTN_RQ"]
     self.blinker_on = (cp.vl["STW_ACTN_RQ"]['TurnIndLvr_Stat'] == 1) or (cp.vl["STW_ACTN_RQ"]['TurnIndLvr_Stat'] == 2)
     self.left_blinker_on = cp.vl["STW_ACTN_RQ"]['TurnIndLvr_Stat'] == 1
     self.right_blinker_on = cp.vl["STW_ACTN_RQ"]['TurnIndLvr_Stat'] == 2
