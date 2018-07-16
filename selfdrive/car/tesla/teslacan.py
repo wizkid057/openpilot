@@ -39,7 +39,7 @@ def create_cruise_adjust_msg(spdCtrlLvr_stat, idx):
   """Creates a CAN message from the cruise control stalk.
   
   Simluates pressing the cruise control stalk (STW_ACTN_RQ.SpdCtrlLvr_Stat
-  
+   
   It is probably best not to flood these messages so that the real
   stalk works normally.
   
@@ -49,22 +49,13 @@ def create_cruise_adjust_msg(spdCtrlLvr_stat, idx):
   msg_id = 0x45  # 69 in hex, STW_ACTN_RQ
   msg_len = 8
   msg = create_string_buffer(msg_len)
-  
-  # set SpdCtrlLvr_Stat
-  vsl_enbl_rq = 1 << 6
-  struct.pack_into('B', msg, 0,  vsl_enbl_rq + spdCtrlLvr_stat)
+  b0 = ( spdCtrlLvr_stat << 2 ) + 2 # 2 is to set the VSL_Enbl_Rq as 1
+  struct.pack_into('B', msg, 0,  b0)
   # set DTR_Dist_Rq, 8 bits of ones.
   struct.pack_into('B', msg, 1,  255)
-  # set message counter. The counter appears 5 bits into the 7th byte,
-  # but everything is 0 based.
-  struct.pack_into('B', msg, 6, idx << 4)
-  # set checksum
-  checksum = _cruise_stalk_checksum(spdCtrlLvr_stat=spdCtrlLvr_stat,
-                                    idx=idx)
-  struct.pack_into('B', msg, msg_len-1, checksum)
-  # [ message id, ????, message, CAN bus number]
-  return [msg_id, 0, msg.raw, 0]
-  
+  struct.pack_into('BBBBB', msg, 2, 0, 0, 0, 0, idx)
+  struct.pack_into('B', msg, msg_len-1, add_tesla_checksum(msg_id,msg))
+  return [msg_id, 0, msg.raw, 0]  
 
 def _cruise_stalk_checksum(spdCtrlLvr_stat, idx): 
   # map of observed crcs, modeled as a nested dict of
