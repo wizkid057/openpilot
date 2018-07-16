@@ -35,34 +35,24 @@ def create_epb_enable_signal(idx):
   struct.pack_into('B', msg, msg_len-1, add_tesla_checksum(msg_id,msg))
   return [msg_id, 0, msg.raw, 2]
   
-def create_cruise_adjust_msg(spdCtrlLvr_stat, idx, last_cruise_message):
+def create_cruise_adjust_msg(spdCtrlLvr_stat, idx, lastStalkMsg):
   """Creates a CAN message from the cruise control stalk.
-  
+
   Simluates pressing the cruise control stalk (STW_ACTN_RQ.SpdCtrlLvr_Stat
-  
+
   It is probably best not to flood these messages so that the real
   stalk works normally.
-  
+
   Args:
     spdCtrlLvr_stat: Int value of dbc entry STW_ACTN_RQ.SpdCtrlLvr_Stat
   """
-  msg_id = 0x45  # 69 in hex, STW_ACTN_RQ
+  msg_id = 0x045  # 69 in hex, STW_ACTN_RQ
   msg_len = 8
   msg = create_string_buffer(msg_len)
-  
-  # set SpdCtrlLvr_Stat
-  vsl_enbl_rq = 1 << 6
-  struct.pack_into('B', msg, 0,  vsl_enbl_rq + spdCtrlLvr_stat)
-  # set DTR_Dist_Rq, 8 bits of ones.
-  struct.pack_into('B', msg, 1,  255)
-  # set message counter. The counter appears 5 bits into the 7th byte,
-  # but everything is 0 based.
-  struct.pack_into('B', msg, 6, idx << 4)
-  # set checksum
-  checksum = _cruise_stalk_checksum(spdCtrlLvr_stat=spdCtrlLvr_stat,
-                                    idx=idx)
-  struct.pack_into('B', msg, msg_len-1, checksum)
-  # [ message id, ????, message, CAN bus number]
+  b0 = ( lastStalkMsg[0] & 0xC0 ) + spdCtrlLvr_stat # 2 is to set the VSL_Enbl_Rq as 1
+  struct.pack_into('BBBBBBB', msg, 0, b0, lastStalkMsg[1], lastStalkMsg[2], lastStalkMsg[3], lastStalkMsg[4],
+       lastStalkMsg[5], (lastStalkMsg[6] & 0x0F) + (idx << 4))
+  struct.pack_into('B', msg, msg_len-1, add_tesla_checksum(msg_id,msg))
   return [msg_id, 0, msg.raw, 0]
 
 def _cruise_stalk_checksum(spdCtrlLvr_stat, idx): 
