@@ -84,7 +84,7 @@ class CarInterface(object):
     std_cargo = 136
 
     # Ridgeline reqires scaled tire stiffness
-    ts_factor = 1
+    ts_factor = 5 
 
     ret = car.CarParams.new_message()
 
@@ -169,7 +169,7 @@ class CarInterface(object):
     ret.longPidDeadzoneV = [0.]
 
     ret.stoppingControl = True
-    ret.steerLimitAlert = False
+    ret.steerLimitAlert = True
     ret.startAccel = 0.5
     ret.steerRateCost = 1.
 

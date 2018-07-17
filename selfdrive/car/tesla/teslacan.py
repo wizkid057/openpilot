@@ -33,8 +33,21 @@ def add_tesla_checksum(msg_id,msg):
   checksum = (checksum + ord(msg[i])) & 0xFF
  return checksum
 
-
 def create_steering_control(enabled, apply_steer, idx):
+  """Creates a CAN message for the Tesla DBC DAS_steeringControl."""
+  msg_id = 0x488
+  msg_len = 4
+  msg = create_string_buffer(msg_len)
+  if enabled == False:
+   steering_type = 0
+  else:
+   steering_type = 1
+  type_counter = ( steering_type + idx ) << 4
+  struct.pack_into('!hB', msg, 0,  (apply_steer << 2) & 0xFFFF, type_counter)
+  struct.pack_into('B', msg, msg_len-1, add_tesla_checksum(msg_id,msg))
+  return [msg_id, 0, msg.raw, 2]
+
+def create_steering_control_old(enabled, apply_steer, idx):
  """Creates a CAN message for the Tesla DBC DAS_steeringControl."""
  msg_id = 0x488
  msg_len = 4
@@ -59,6 +72,15 @@ def create_epb_enable_signal(idx):
   struct.pack_into('B', msg, msg_len-1, add_tesla_checksum(msg_id,msg))
   return [msg_id, 0, msg.raw, 2]
   
+def create_das_status_msg(autopilotState,idx):
+  """Create DAS_status (0x399) message to generate AP sounds"""
+  msg_id = 0x399
+  msg_len = 8
+  msg = create_string_buffer(msg_len)
+  struct.pack_into('BBBBBBB', msg, 0,  autopilotState, 0, 0, 0, 0, 0, idx << 4)
+  struct.pack_into('B', msg, msg_len-1, add_tesla_checksum(msg_id,msg))
+  return [msg_id, 0, msg.raw, 0]
+
 def create_cruise_adjust_msg(spdCtrlLvr_stat, idx, lastStalkMsg):
   """Creates a CAN message from the cruise control stalk.
 

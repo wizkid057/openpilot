@@ -152,6 +152,9 @@ class CarController(object):
       can_sends.append(teslacan.create_steering_control(enable_steer_control, apply_steer, idx))
       if (not humanControl):
         can_sends.append(teslacan.create_epb_enable_signal(idx))
+        can_sends.append(teslacan.create_das_status_msg(0x3,idx))
+      else:
+        can_sends.append(teslacan.create_das_status_msg(0x2,idx))
       if (enable_steer_control   and CS.pcm_acc_status == 2):
         if (idx == 0):
           print "Brake,Gas,v_cruise_car,v_cruise_pcm" + str(brake) + ", " + str(actuators.gas) + ", " + str(CS.v_cruise_car) + ", " + str(CS.v_cruise_pcm)
