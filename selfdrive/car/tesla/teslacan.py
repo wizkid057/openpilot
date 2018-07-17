@@ -42,7 +42,7 @@ def create_steering_control(enabled, apply_steer, idx):
    steering_type = 0
   else:
    steering_type = 1
-  type_counter = ( steering_type + idx ) << 4
+  type_counter = ( steering_type + ( idx  << 4)) & 0xFF
   struct.pack_into('!hB', msg, 0,  (apply_steer << 2) & 0xFFFF, type_counter)
   struct.pack_into('B', msg, msg_len-1, add_tesla_checksum(msg_id,msg))
   return [msg_id, 0, msg.raw, 2]
