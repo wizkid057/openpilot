@@ -34,20 +34,6 @@ def add_tesla_checksum(msg_id,msg):
  return checksum
 
 def create_steering_control(enabled, apply_steer, idx):
-  """Creates a CAN message for the Tesla DBC DAS_steeringControl."""
-  msg_id = 0x488
-  msg_len = 4
-  msg = create_string_buffer(msg_len)
-  if enabled == False:
-   steering_type = 0
-  else:
-   steering_type = 1
-  type_counter = ( steering_type + ( idx  << 4)) & 0xFF
-  struct.pack_into('!hB', msg, 0,  (apply_steer << 2) & 0xFFFF, type_counter)
-  struct.pack_into('B', msg, msg_len-1, add_tesla_checksum(msg_id,msg))
-  return [msg_id, 0, msg.raw, 2]
-
-def create_steering_control_old(enabled, apply_steer, idx):
  """Creates a CAN message for the Tesla DBC DAS_steeringControl."""
  msg_id = 0x488
  msg_len = 4
@@ -58,6 +44,8 @@ def create_steering_control_old(enabled, apply_steer, idx):
   steering_type = 1
  type_counter = steering_type << 6
  type_counter += idx
+ #change angle to the Tesla * 10 + 0x4000
+ apply_steer = ( apply_steer * 10 + 0x4000 ) & 0xFFFF
  struct.pack_into('!hB', msg, 0,  apply_steer, type_counter)
  struct.pack_into('B', msg, msg_len-1, add_tesla_checksum(msg_id,msg))
  return [msg_id, 0, msg.raw, 2]
@@ -77,7 +65,7 @@ def create_das_status_msg(autopilotState,idx):
   msg_id = 0x399
   msg_len = 8
   msg = create_string_buffer(msg_len)
-  struct.pack_into('BBBBBBB', msg, 0,  autopilotState, 0, 0, 0, 0, 0, idx << 4)
+  struct.pack_into('BBBBBBB', msg, 0,  (autopilotState << 4) & 0xFF, 0, 0, 0, 0, 0, idx)
   struct.pack_into('B', msg, msg_len-1, add_tesla_checksum(msg_id,msg))
   return [msg_id, 0, msg.raw, 0]
 
@@ -96,7 +84,7 @@ def create_cruise_adjust_msg(spdCtrlLvr_stat, idx, lastStalkMsg):
   msg_len = 8
   msg = create_string_buffer(msg_len)
   if ( True ): #(len(lastStalkMsg) == 0):
-    b0 = (1 << 6) + spdCtrlLvr_stat
+    b0 = (spdCtrlLvr_stat << 2) & 0xFF
     b1 = 0xFF
     b2 = 0x00
     b3 = 0x00

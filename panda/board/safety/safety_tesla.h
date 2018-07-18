@@ -11,7 +11,7 @@
 //      brake > 0mph
 
 // lateral limits
-const int16_t MAX_ANGLE = 20; //Degrees
+const int16_t MAX_ANGLE = 400; //Degrees
 
 int tesla_brake_prev = 0;
 int tesla_gas_prev = 0;
