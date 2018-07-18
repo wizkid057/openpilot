@@ -118,7 +118,7 @@ class CarController(object):
     # *** compute control surfaces ***
 
     USER_STEER_MAX  = 0.1485 * CS.v_ego * CS.v_ego - 15.451 * CS.v_ego + 400
-
+    STEER_MAX = 420
     # Prevent steering while stopped
     MIN_STEERING_VEHICLE_VELOCITY = 0.05 # m/s
     vehicle_moving = (CS.v_ego >= MIN_STEERING_VEHICLE_VELOCITY)
@@ -130,34 +130,14 @@ class CarController(object):
       humanControl = True
     
     # Angle
-    apply_steer = int(clip(-actuators.steerAngle , -USER_STEER_MAX, USER_STEER_MAX)) # steer torque is converted back to CAN reference (positive when steering right)
+    apply_steer = clip(-actuators.steerAngle , -USER_STEER_MAX, USER_STEER_MAX) # steer torque is converted back to CAN reference (positive when steering right)
     # Send CAN commands.
     can_sends = []
     send_step = 5
 
-    if (frame % send_step) == 0:
-      idx = (frame/send_step) % 16 
+    if  (True): #(frame % send_step) == 0:
+      idx = frame #(frame/send_step) % 16 
       can_sends.append(teslacan.create_steering_control(enable_steer_control, apply_steer, idx))
       if (not humanControl):
         can_sends.append(teslacan.create_epb_enable_signal(idx))
-        can_sends.append(teslacan.create_das_status_msg(0x3,idx))
-      else:
-        can_sends.append(teslacan.create_das_status_msg(0x2,idx))
-      if (enable_steer_control   and CS.pcm_acc_status == 2):
-        if (idx == 0):
-          print "Brake,Gas,v_cruise_car,v_cruise_pcm" + str(brake) + ", " + str(actuators.gas) + ", " + str(CS.v_cruise_car) + ", " + str(CS.v_cruise_pcm)
-        if (brake > 0.7):
-          can_sends.append(teslacan.create_cruise_adjust_msg(8, idx, CS.last_cruise_message))
-          print "Send slow down"
-        # Model isn't sending gas currently..
-        # elif (apply_accel > 0.4):
-        elif (CS.v_cruise_pcm - CS.v_cruise_car > 1):
-          if (frame % 50) == 0:
-            if (CS.v_ego > (18*CV.MPH_TO_KPH) and CS.v_cruise_pcm - CS.v_cruise_car > 10):
-              can_sends.append(teslacan.create_cruise_adjust_msg(4, idx, CS.last_cruise_message))
-              print "Send up 5?"
-            else:
-              can_sends.append(teslacan.create_cruise_adjust_msg(16, idx, CS.last_cruise_message))         
-              print "Send up 1?"
-
       sendcan.send(can_list_to_can_capnp(can_sends, msgtype='sendcan').to_bytes())

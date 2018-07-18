@@ -103,10 +103,10 @@ class CarInterface(object):
 
     # FIXME: hardcoding honda civic 2016 touring params so they can be used to
     # scale unknown params for other cars
-    mass_models = 4647./2.205 + std_cargo
+    mass_models = 4722./2.205 + std_cargo
     wheelbase_models = 2.959
     # RC: I'm assuming center means center of mass, and I think Model S is pretty even between two axles
-    centerToFront_models = wheelbase_models * 0.5
+    centerToFront_models = wheelbase_models * 0.48
     centerToRear_models = wheelbase_models - centerToFront_models
     rotationalInertia_models = 2500
     tireStiffnessFront_models = 85400
@@ -118,10 +118,10 @@ class CarInterface(object):
       ret.mass = mass_models
       ret.wheelbase = wheelbase_models
       ret.centerToFront = centerToFront_models
-      ret.steerRatio = 13.0
+      ret.steerRatio = 17.0
       # Kp and Ki for the lateral control
-      ret.steerKpV, ret.steerKiV = [[0.09], [0.0125]]
-      ret.steerKf = 0.00003 # Initial test value TODO: investigate FF steer control for Model S?
+      ret.steerKpV, ret.steerKiV = [[0.6], [0.24]]
+      ret.steerKf = 0.00006 # Initial test value TODO: investigate FF steer control for Model S?
       ret.steerActuatorDelay = 0.09
       
       # Kp and Ki for the longitudinal control
@@ -169,7 +169,7 @@ class CarInterface(object):
     ret.longPidDeadzoneV = [0.]
 
     ret.stoppingControl = True
-    ret.steerLimitAlert = True
+    ret.steerLimitAlert = False
     ret.startAccel = 0.5
     ret.steerRateCost = 1.
 

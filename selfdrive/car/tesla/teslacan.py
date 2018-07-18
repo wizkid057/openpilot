@@ -45,7 +45,7 @@ def create_steering_control(enabled, apply_steer, idx):
  type_counter = steering_type << 6
  type_counter += idx
  #change angle to the Tesla * 10 + 0x4000
- apply_steer = ( apply_steer * 10 + 0x4000 ) & 0xFFFF
+ apply_steer = int( apply_steer * 10 + 0x4000 ) & 0xFFFF
  struct.pack_into('!hB', msg, 0,  apply_steer, type_counter)
  struct.pack_into('B', msg, msg_len-1, add_tesla_checksum(msg_id,msg))
  return [msg_id, 0, msg.raw, 2]
