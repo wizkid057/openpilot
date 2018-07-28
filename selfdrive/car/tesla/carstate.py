@@ -256,7 +256,6 @@ class CarState(object):
     self.blinker_on = (self.steering_wheel_stalk['TurnIndLvr_Stat'] == 1) or (self.steering_wheel_stalk['TurnIndLvr_Stat'] == 2)
     self.left_blinker_on = self.steering_wheel_stalk['TurnIndLvr_Stat'] == 1
     self.right_blinker_on = self.steering_wheel_stalk['TurnIndLvr_Stat'] == 2
-
     #if self.CP.carFingerprint in (CAR.CIVIC, CAR.ODYSSEY):
     #  self.park_brake = cp.vl["EPB_STATUS"]['EPB_STATE'] != 0
     #  self.brake_hold = cp.vl["VSA_STATUS"]['BRAKE_HOLD_ACTIVE']
@@ -282,7 +281,7 @@ class CarState(object):
 
     self.user_brake = cp.vl["DI_torque2"]['DI_brakePedal']
     if cp.vl["DI_state"]['DI_speedUnits'] == 0:
-      self.v_cruise_pcm = (cp.vl["DI_state"]['DI_cruiseSet'])*1.609 # Reported in MPH, expected in KPH??
+      self.v_cruise_pcm = (cp.vl["DI_state"]['DI_cruiseSet'])*CV.MPH_TO_KPH # Reported in MPH, expected in KPH??
     self.imperial_speed_units = cp.vl["DI_state"]['DI_speedUnits'] == 0
     if self.imperial_speed_units:
       self.v_cruise_actual = (cp.vl["DI_state"]['DI_cruiseSet'])*1.609 # Reported in MPH, expected in KPH??
