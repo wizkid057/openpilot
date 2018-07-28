@@ -1,4 +1,8 @@
 import os
+import subprocess
+from  threading import Thread
+import traceback
+import shlex
 from collections import namedtuple
 from selfdrive.boardd.boardd import can_list_to_can_capnp
 from selfdrive.controls.lib.drive_helpers import rate_limit
@@ -110,7 +114,7 @@ class CarController(object):
 
     hud = HUDData(int(pcm_accel), int(round(hud_v_cruise)), 1, hud_car,
                   0xc1, hud_lanes, int(snd_beep), snd_chime, fcw_display, acc_alert, steer_required)
-
+ 
     if not all(isinstance(x, int) and 0 <= x < 256 for x in hud):
       print "INVALID HUD", hud
       hud = HUDData(0xc6, 255, 64, 0xc0, 209, 0x40, 0, 0, 0, 0)
@@ -118,30 +122,26 @@ class CarController(object):
     # **** process the car messages ****
 
     # *** compute control surfaces ***
-    STEER_MAX = 0x4000 #16384
 
-    # Angle Max. slope versus car speed
-    # Graphical view: https://slack-files.com/T02Q83UUV-FBQFZR5PW-7962eb2adb
-    # and https://slack-files.com/T02Q83UUV-FBQ6SPPRP-b110efb723
-    # Model 1: USER_STEER_MAX = (-62.0 * CS.v_ego) + 2314.6
-    # Model 2: USER_STEER_MAX  = 2.43 * CS.v_ego * CS.v_ego - 193.52 * CS.v_ego + 4000
-    # Model 3: USER_STEER_MAX  = 1.485 * CS.v_ego * CS.v_ego - 154.51 * CS.v_ego + 4000
-    USER_STEER_MAX  = 1.485 * CS.v_ego * CS.v_ego - 154.51 * CS.v_ego + 4000
+    USER_STEER_MAX  = 0.1485 * CS.v_ego * CS.v_ego - 15.451 * CS.v_ego + 400
+    STEER_MAX = 420
+    # Prevent steering while stopped
+    MIN_STEERING_VEHICLE_VELOCITY = 0.05 # m/s
+    vehicle_moving = (CS.v_ego >= MIN_STEERING_VEHICLE_VELOCITY)
     
     # Basic highway lane change logic
     changing_lanes = CS.right_blinker_on or CS.left_blinker_on
-    
+
     enable_steer_control = (enabled and not changing_lanes)
         
     # Angle
-    apply_steer = int(clip((-actuators.steerAngle * 10) + STEER_MAX, STEER_MAX - USER_STEER_MAX, STEER_MAX + USER_STEER_MAX)) # steer angle is converted back to CAN reference (positive when steering right)
-
+    apply_steer = clip(-actuators.steerAngle , -USER_STEER_MAX, USER_STEER_MAX) # steer torque is converted back to CAN reference (positive when steering right)
     # Send CAN commands.
     can_sends = []
     send_step = 5
 
-    if (frame % send_step) == 0:
-      idx = (frame/send_step) % 16 
+    if  (True): #(frame % send_step) == 0:
+      idx = frame % 16 #(frame/send_step) % 16 
       can_sends.append(teslacan.create_steering_control(enable_steer_control, apply_steer, idx))
       can_sends.append(teslacan.create_epb_enable_signal(idx))
       

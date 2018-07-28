@@ -6,7 +6,6 @@ from selfdrive.car.tesla.values import CAR, DBC
 import numpy as np
 from ctypes import create_string_buffer
 
-
 def parse_gear_shifter(can_gear_shifter, car_fingerprint):
 
   # TODO: Use VAL from DBC to parse this field
@@ -233,7 +232,7 @@ class CarState(object):
     self.v_wheel_rr = 0 #JCT
     self.v_wheel = 0 #JCT
     self.v_weight = 0 #JCT
-    speed = (cp.vl["DI_torque2"]['DI_vehicleSpeed'])*1.609/3.6 #JCT MPH_TO_MS. Tesla is in MPH, v_ego is expected in M/S
+    speed = (cp.vl["DI_torque2"]['DI_vehicleSpeed'])*CV.MPH_TO_KPH/3.6 #JCT MPH_TO_MS. Tesla is in MPH, v_ego is expected in M/S
     speed = speed * 1.01 # To match car's displayed speed
     self.v_ego_x = np.matrix([[speed], [0.0]])
     self.v_ego_raw = speed
@@ -254,7 +253,6 @@ class CarState(object):
     self.steering_wheel_stalk = cp.vl["STW_ACTN_RQ"]
     self.cruise_setting = self.steering_wheel_stalk['SpdCtrlLvr_Stat']
     self.cruise_buttons = self.steering_wheel_stalk['SpdCtrlLvr_Stat']
-
     self.blinker_on = (self.steering_wheel_stalk['TurnIndLvr_Stat'] == 1) or (self.steering_wheel_stalk['TurnIndLvr_Stat'] == 2)
     self.left_blinker_on = self.steering_wheel_stalk['TurnIndLvr_Stat'] == 1
     self.right_blinker_on = self.steering_wheel_stalk['TurnIndLvr_Stat'] == 2
@@ -268,7 +266,6 @@ class CarState(object):
     self.brake_hold = 0  # TODO
 
     self.main_on = 1 #cp.vl["SCM_BUTTONS"]['MAIN_ON']
-
     self.cruise_speed_offset = calc_cruise_offset(cp.vl["DI_state"]['DI_cruiseSet'], self.v_ego)
     self.gear_shifter = parse_gear_shifter(can_gear_shifter, self.CP.carFingerprint)
 
@@ -284,17 +281,23 @@ class CarState(object):
     self.brake_pressed = epas_cp.vl["EPAS_sysStatus"]['EPAS_eacErrorCode'] == 3 and epas_cp.vl["EPAS_sysStatus"]['EPAS_eacStatus'] == 0  #cp.vl["DI_torque2"]['DI_brakePedal']
 
     self.user_brake = cp.vl["DI_torque2"]['DI_brakePedal']
-    self.standstill = cp.vl["DI_torque2"]['DI_vehicleSpeed'] == 0
+    if cp.vl["DI_state"]['DI_speedUnits'] == 0:
+      self.v_cruise_pcm = (cp.vl["DI_state"]['DI_cruiseSet'])*1.609 # Reported in MPH, expected in KPH??
     self.imperial_speed_units = cp.vl["DI_state"]['DI_speedUnits'] == 0
     if self.imperial_speed_units:
       self.v_cruise_actual = (cp.vl["DI_state"]['DI_cruiseSet'])*1.609 # Reported in MPH, expected in KPH??
     else:
+      self.v_cruise_pcm = cp.vl["DI_state"]['DI_cruiseSet']
       self.v_cruise_actual = cp.vl["DI_state"]['DI_cruiseSet']
     # The user may manually increase cruise speed. If they push it above the max
     # cruise speed, update the max.
     self.v_cruise_pcm = max(self.v_cruise_actual, self.v_cruise_pcm)
+    # cruise speed, update the max.
+    self.v_cruise_pcm = max(self.v_cruise_actual, self.v_cruise_pcm)
+    
     self.pcm_acc_status = cp.vl["DI_state"]['DI_cruiseState']
     self.hud_lead = 0 #JCT
+    self.cruise_speed_offset = calc_cruise_offset(self.v_cruise_pcm, self.v_ego)
 
 
 # carstate standalone tester
