@@ -146,42 +146,13 @@ class CarController(object):
       can_sends.append(teslacan.create_epb_enable_signal(idx))
       
       # Adaptive cruise control
-      # Only do adaptive cruise control while OpenPilot is steering and cruise
-      # control is active. And check infrequently, since sending repeated
-      # adjustments makes the car think we're doing a 'long press' on the
-      # cruise stalk, resulting in small, jerky speed adjustments.
-      if enable_steer_control and CS.enable_adaptive_cruise and CS.pcm_acc_status == 2 and idx == 0:
-        # Metric cars adjust cruise in units of 1 and 5 kph
-        half_press_kph = 1
-        full_press_kph = 5
-        # Imperial unit cars adjust cruise in units of 1 and 5 mph
-        if CS.imperial_speed_units:
-          half_press_kph = 1 * CV.MPH_TO_KPH
-          full_press_kph = 5 * CV.MPH_TO_KPH
-        
-        cruise_msg = None
-        # The difference between OP's target speed and the current cruise
-        # control speed, in KPH.
-        speed_offset = (pcm_speed * CV.MS_TO_KPH - CS.v_cruise_actual)
-        # Reduce cruise speed significantly if necessary.
-        if speed_offset < (-1 * full_press_kph):
-          # Send cruise stalk dn_2nd.
-          cruise_msg = teslacan.create_cruise_adjust_msg(CruiseButtons.DECEL_2ND, CS.steering_wheel_stalk)
-        # Reduce speed slightly if necessary.
-        elif speed_offset < (-1 * half_press_kph):
-          # Send cruise stalk dn_1st.
-          cruise_msg = teslacan.create_cruise_adjust_msg(CruiseButtons.DECEL_SET, CS.steering_wheel_stalk)
-        # Increase cruise speed if possible.
-        elif CS.v_ego > 18 * CV.MPH_TO_MS:  # cruise only works >18mph.
-          # How much we can accelerate without exceeding the max allowed speed.
-          available_speed = CS.v_cruise_pcm - CS.v_cruise_actual
-          if full_press_kph < speed_offset and full_press_kph < available_speed:
-            # Send cruise stalk up_2nd
-            cruise_msg = teslacan.create_cruise_adjust_msg(CruiseButtons.RES_ACCEL_2ND, CS.steering_wheel_stalk)
-          elif half_press_kph < speed_offset and half_press_kph < available_speed:
-            # Send cruise stalk up_1st
-            cruise_msg = teslacan.create_cruise_adjust_msg(CruiseButtons.RES_ACCEL, CS.steering_wheel_stalk)
-        if cruise_msg:
-          can_sends.append(cruise_msg)
+      # TODO: Fill in reasonable values, and cast things to the right type.
+      can_sends.append(teslacan.create_das_msg(setSpeed=pcm_speed,
+                                               aebEvent=0,
+                                               jerkMin=0,
+                                               jerkMax=1,
+                                               accelMin=0,
+                                               accelMax=1,
+                                               idx=idx)
 
       sendcan.send(can_list_to_can_capnp(can_sends, msgtype='sendcan').to_bytes())
