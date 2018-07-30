@@ -140,18 +140,20 @@ def create_das_msg(
   msg_len = 8
   msg = create_string_buffer(msg_len)
 
-  # TODO: do the right struct.pack_into for these bits into the 8 byte message.
-  # "fix?" just happen to be valid characters but won't really work :)
+  # TODO: do the right struct.pack_into formatting for these bits.
+  # "fix???" just happens to be valid characters but won't really work :)
   # https://docs.python.org/2/library/struct.html#format-characters
-  struct.pack_into('fix?', msg, 0, setSpeed,
-                                   aebEvent,
-                                   jerkMin,
-                                   jerkMax,
-                                   accelMin,
-                                   accelMax,
-                                   idx)
+  struct.pack_into('fix???', msg, 0, setSpeed,
+                                     aebEvent,
+                                     jerkMin,
+                                     jerkMax,
+                                     accelMin,
+                                     accelMax,
+                                     idx)
   
   # Finally, set the checksum for the message. Must be calculated last!
+  # TODO: see if this the standard Tesla checksum is accepted. Could potentially
+  # require the CRC method instead, or a different algorithm alltogether.
   checksum = add_tesla_checksum(msg_id=msg_id, msg=msg)
   struct.pack_into('B', msg, msg_len-1, checksum)
 
