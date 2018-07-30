@@ -123,3 +123,36 @@ def create_cruise_adjust_msg(spdCtrlLvr_stat, real_steering_wheel_stalk):
     return [msg_id, 0, msg.raw, 0]
   else:
     return None
+
+def create_das_msg(
+  setSpeed, aebEvent, jerkMin, jerkMax, accelMin, accelMax, idx):
+  """
+   SG_ DAS_setSpeed : 0|12@1+ (0.1,-50) [-50|359.4] "kph" GTW,EPB,EPBM
+   SG_ DAS_accState : 12|4@1+ (1,0) [0|0] "" GTW,EPB,EPBM
+   SG_ DAS_aebEvent : 16|2@1+ (1,0) [0|3] "" GTW,RCM
+   SG_ DAS_jerkMin : 18|9@1+ (0.018,-9.1) [-9.1|0.097999999999999] "m/s^3" GTW
+   SG_ DAS_jerkMax : 27|8@1+ (0.034,0) [0|8.67] "m/s^3" GTW
+   SG_ DAS_accelMin : 35|9@1+ (0.04,-15) [-15|5.44] "m/s^2" GTW
+   SG_ DAS_accelMax : 44|9@1+ (0.04,-15) [-15|5.44] "m/s^2" GTW
+   SG_ DAS_controlCounter : 53|3@1+ (1,0) [0|0] "" GTW
+   SG_ DAS_controlChecksum : 56|8@1+ (1,0) [0|0] "" GTW"""
+  msg_id = 0x2B9  # 697 in hex, DAS_control
+  msg_len = 8
+  msg = create_string_buffer(msg_len)
+
+  # TODO: do the right struct.pack_into for these bits into the 8 byte message.
+  # "fix?" just happen to be valid characters but won't really work :)
+  # https://docs.python.org/2/library/struct.html#format-characters
+  struct.pack_into('fix?', msg, 0, setSpeed,
+                                   aebEvent,
+                                   jerkMin,
+                                   jerkMax,
+                                   accelMin,
+                                   accelMax,
+                                   idx)
+  
+  # Finally, set the checksum for the message. Must be calculated last!
+  checksum = add_tesla_checksum(msg_id=msg_id, msg=msg)
+  struct.pack_into('B', msg, msg_len-1, checksum)
+
+  return [msg_id, 0, msg.raw, 0]

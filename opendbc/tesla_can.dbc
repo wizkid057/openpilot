@@ -98,7 +98,8 @@ BO_ 3 STW_ANGL_STAT: 8 STW
  SG_ MC_STW_ANGL_STAT : 55|4@0+ (1,0) [0|15] ""  NEO
  SG_ CRC_STW_ANGL_STAT : 63|8@0+ (1,0) [0|255] ""  NEO
 
-BO_ 14 STW_ANGLHP_STAT: 8 STW 
+BO_ 14 STW_ANGLHP_STAT: 8 STW
+ 
  SG_ StW_AnglHP : 5|14@0+ (0.1,-819.2) [-819.2|819] "deg"  NEO
  SG_ StW_AnglHP_Spd : 21|14@0+ (0.5,-4096) [-4096|4095.5] "deg/s"  NEO
  SG_ StW_AnglHP_Sens_Stat : 33|2@0+ (1,0) [0|0] ""  NEO
@@ -147,7 +148,10 @@ BO_ 309 ESP_135h: 5 ESP
  SG_ ESP_espOffLamp : 31|1@0+ (1,0) [-1|2] ""  NEO
  SG_ ESP_stabilityControlSts : 14|3@0+ (1,0) [6|7] ""  NEO
  SG_ ESP_tcLampFlash : 5|1@0+ (1,0) [-1|2] ""  NEO
- SG_ ESP_tcOffLamp : 15|1@0+ (1,0) [0|1] ""  NEOBO_ 341 ESP_B: 8 ESP SG_ ESP_BChecksum : 39|8@0+ (1,0) [0|255] ""  NEO,EPAS
+ SG_ ESP_tcOffLamp : 15|1@0+ (1,0) [0|1] ""  NEO
+
+BO_ 341 ESP_B: 8 ESP
+ SG_ ESP_BChecksum : 39|8@0+ (1,0) [0|255] ""  NEO,EPAS
  SG_ ESP_BCounter : 62|4@0+ (1,0) [1|15] ""  NEO,EPAS
  SG_ ESP_vehicleSpeed : 47|16@0+ (0.00999999978,0) [0|0] "kph"  NEO,EPAS
  SG_ ESP_vehicleSpeedQF : 57|2@0+ (1,0) [1|2] ""  NEO,EPAS
@@ -305,6 +309,17 @@ BO_ 840 GTW_status: 8 GTW
  SG_ GTW_preconditionRequest : 10|1@0+ (1,0) [0|1] ""  NEO
  SG_ GTW_statusChecksum : 63|8@0+ (1,0) [0|255] ""  NEO
  SG_ GTW_statusCounter : 51|4@0+ (1,0) [0|15] ""  NEO
+ 
+BO_ 697 DAS_control: 8 DAS
+ SG_ DAS_setSpeed : 0|12@1+ (0.1,-50) [-50|359.4] "kph" GTW,EPB,EPBM
+ SG_ DAS_accState : 12|4@1+ (1,0) [0|0] "" GTW,EPB,EPBM
+ SG_ DAS_aebEvent : 16|2@1+ (1,0) [0|3] "" GTW,RCM
+ SG_ DAS_jerkMin : 18|9@1+ (0.018,-9.1) [-9.1|0.097999999999999] "m/s^3" GTW
+ SG_ DAS_jerkMax : 27|8@1+ (0.034,0) [0|8.67] "m/s^3" GTW
+ SG_ DAS_accelMin : 35|9@1+ (0.04,-15) [-15|5.44] "m/s^2" GTW
+ SG_ DAS_accelMax : 44|9@1+ (0.04,-15) [-15|5.44] "m/s^2" GTW
+ SG_ DAS_controlCounter : 53|3@1+ (1,0) [0|0] "" GTW
+ SG_ DAS_controlChecksum : 56|8@1+ (1,0) [0|0] "" GTW
 
 VAL_ 3 StW_Angl 16383 "SNA" ;
 VAL_ 3 StW_AnglSens_Id 2 "MUST" 0 "PSBL" 1 "SELF" ;
