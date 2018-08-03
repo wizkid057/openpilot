@@ -249,6 +249,11 @@ static int tesla_ign_hook() {
 
 static int tesla_fwd_hook(int bus_num, CAN_FIFOMailBox_TypeDef *to_fwd) {
   
+	/*
+		bus_num = bus the message was received FROM
+		return = bus to send the message TO or false to block it
+	*/
+
   int32_t addr = to_fwd->RIR >> 21;
   
   if (bus_num == 0) {
@@ -262,17 +267,28 @@ static int tesla_fwd_hook(int bus_num, CAN_FIFOMailBox_TypeDef *to_fwd) {
       return 2;
     }
 
-    return 2; // Custom EPAS bus
+	// TODO:  Some way to differentiate where we're sending stuff for AP1 or no-AP
+	return 2; // Custom EPAS bus
+	return 1; // DAS bus
   }
+
   if (bus_num == 2) {
-    
-    // remove GTW_epasControl in forwards
+   // remove GTW_epasControl in forwards
    if (addr == 0x101) {
      return false;
    }
 
     return 0; // Chassis CAN
   }
+
+	// Messages FROM DAS
+	if (bus_num == 1) {
+
+		// default
+		// pass through DAS->CH
+		return 0;
+	}
+
   return false;
 }
 
