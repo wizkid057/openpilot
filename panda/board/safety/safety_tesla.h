@@ -259,19 +259,40 @@ static int tesla_fwd_hook(int bus_num, CAN_FIFOMailBox_TypeDef *to_fwd) {
   if (bus_num == 0) {
     
     // change inhibit of GTW_epasControl
-    if (addr == 0x101) {
+	// this breaks DAS for some reason?
+/*    if (addr == 0x101) {
       to_fwd->RDLR = to_fwd->RDLR | 0x4000; // 0x4000: WITH_ANGLE, 0xC000: WITH_BOTH (angle and torque)
       int checksum = (((to_fwd->RDLR & 0xFF00) >> 8) + (to_fwd->RDLR & 0xFF) + 2) & 0xFF;
       to_fwd->RDLR = to_fwd->RDLR & 0xFFFF;
       to_fwd->RDLR = to_fwd->RDLR + (checksum << 16);
       return 2;
-    }
+    }*/
+
+
+	if (addr == 0x370) {
+		// EPAS_sysStatus
+
+		// wipe out checksum and hands-on flag
+		to_fwd->RDHR &= 0x00FFFF3F;
+
+		// set hands on flag
+		to_fwd->RDHR |= 0x40;
+
+		// recalc checksum
+		unsigned int epas_cs = ((to_fwd->RDLR&0xFF) + ((to_fwd->RDLR>>8)&0xFF) + ((to_fwd->RDLR>>16)&0xFF) + ((to_fwd->RDLR>>24)&0xFF) + (to_fwd->RDHR&0xFF) + ((to_fwd->RDHR>>8)&0xFF) + ((to_fwd->RDHR>>16)&0xFF);
+
+		// store recalculated checksum
+		to_fwd->RDHR |= ((epas_cs<<24)&0xFF000000);
+	}
+
 
 	// TODO:  Some way to differentiate where we're sending stuff for AP1 or no-AP
-	return 2; // Custom EPAS bus
+	//return 2; // Custom EPAS bus
 	return 1; // DAS bus
   }
 
+
+	// should be fine to leave this
   if (bus_num == 2) {
    // remove GTW_epasControl in forwards
    if (addr == 0x101) {
@@ -288,6 +309,7 @@ static int tesla_fwd_hook(int bus_num, CAN_FIFOMailBox_TypeDef *to_fwd) {
 		// pass through DAS->CH
 		return 0;
 	}
+
 
   return false;
 }
