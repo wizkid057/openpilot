@@ -159,7 +159,7 @@ class CarController(object):
 
     if  (True): #(frame % send_step) == 0:
       idx = frame % 16 #(frame/send_step) % 16 
-      can_sends.append(teslacan.create_steering_control(enable_steer_control, apply_angle, idx))
-      can_sends.append(teslacan.create_epb_enable_signal(idx))
+      #can_sends.append(teslacan.create_steering_control(enable_steer_control, apply_angle, idx))
+      #can_sends.append(teslacan.create_epb_enable_signal(idx))
       self.last_angle = apply_angle
-      sendcan.send(can_list_to_can_capnp(can_sends, msgtype='sendcan').to_bytes())
+      #sendcan.send(can_list_to_can_capnp(can_sends, msgtype='sendcan').to_bytes())
